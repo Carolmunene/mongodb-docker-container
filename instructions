@@ -1,0 +1,40 @@
+Build docker image for web app
+git clone https://github.com/janakiramm/todo-app.git
+cd todo-app
+cat Dockerfile
+docker build -t rose/todo-web .
+docker images
+
+B. Setup mongo db container
+docker pull mongo:latest
+cat app/db.js
+docker network ls
+docker network create todo_net
+docker network ls
+docker run -d --name=db --hostname=db --network=todo_net mongo
+docker logs db
+
+C. Connect web container to mongo db container
+docker run -d --name=web --publish=3000:3000 --hostname=web --network=todo_net rose/todo-web
+docker logs web
+docker exec -it web ping db
+
+D. Access the sample web app
+http://your_server_ip:3000
+
+E. Use docker-compose to bring up the two containers together
+cat compose/docker-compose.yaml
+docker-compose up -d
+docker ps -a
+
+F. Scale the application
+docker-compose scale web=10
+docker ps -a
+docker-compose scale web=2
+docker ps -a
+
+G. Cleanup
+docker-compose stop
+docker-compose rm -f
+docker network remove compose_todonet
+
